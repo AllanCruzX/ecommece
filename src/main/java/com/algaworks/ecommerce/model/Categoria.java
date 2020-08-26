@@ -9,17 +9,17 @@ import java.util.List;
 
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+
 @Entity
 @Table(name = "categoria")
-public class Categoria {
+public class Categoria extends EntidadeBaseInteger {
 
-    @EqualsAndHashCode.Include
-    @Id
+   // @EqualsAndHashCode.Include
+   // @Id
   //  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq")
  //   @SequenceGenerator(name = "seq", sequenceName = "categoria_sequencias_chave_primaria")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+  //  @GeneratedValue(strategy = GenerationType.IDENTITY)
+ //   private Integer id;
 
     private String nome;
 
