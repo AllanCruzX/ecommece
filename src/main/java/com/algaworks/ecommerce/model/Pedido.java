@@ -22,7 +22,7 @@ public class Pedido extends EntidadeBaseInteger {
 
 
 
-    @Column(name = "data_criacao" ,  updatable = false)
+    @Column(name = "data_criacao", updatable = false, nullable = false)
     private LocalDateTime dataCriacao;
 
     @Column(name = "data_ultima_atualizacao" , insertable = false)
@@ -34,8 +34,10 @@ public class Pedido extends EntidadeBaseInteger {
     @OneToOne(mappedBy = "pedido")
     private NotaFiscal notaFiscal;
 
+    @Column(precision = 19, scale = 2 , nullable = false)
     private BigDecimal total;
 
+    @Column(length = 30, nullable = false)
     @Enumerated(EnumType.STRING)
     private StatusPedido status;
 
@@ -43,11 +45,12 @@ public class Pedido extends EntidadeBaseInteger {
     private EnderecoEntregaPedido enderecoEntrega;
 
     // optional = false - torna obrigatorio setar cliente (O JPA pode usar o inner join ao invez de left outer join)(left join e menos performatico que o inner join )
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "cliente_id")
+    @ManyToOne(optional = false , cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "cliente_id" , nullable = false ,
+            foreignKey = @ForeignKey(name = "fk_pedido_cliente"))
     private Cliente cliente;
 
-    @OneToMany(mappedBy = "pedido" , fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "pedido" , cascade = CascadeType.PERSIST )
     private List<ItemPedido> itens;
 
     @OneToOne(mappedBy = "pedido")
@@ -56,7 +59,6 @@ public class Pedido extends EntidadeBaseInteger {
     public boolean isPago() {
         return StatusPedido.PAGO.equals(status);
     }
-
 
     //    @PrePersist
 //    @PreUpdate

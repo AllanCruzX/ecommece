@@ -11,19 +11,27 @@ import java.util.Map;
 
 @Setter
 @Getter
-@SecondaryTable(name = "cliente_detalhe", pkJoinColumns = @PrimaryKeyJoinColumn(name = "cliente_id"))
+@SecondaryTable(name = "cliente_detalhe",
+        pkJoinColumns = @PrimaryKeyJoinColumn(name = "cliente_id"),
+        foreignKey = @ForeignKey(name = " fk_cliente_detalhe_cliente")   )
 @Entity
-@Table(name = "cliente")
+@Table(name = "cliente" ,
+        uniqueConstraints = { @UniqueConstraint( name = "unq_cpf" , columnNames = {"cpf"}) },
+        indexes = { @Index(name = "idx_nome" , columnList = "nome")})
 public class Cliente extends EntidadeBaseInteger {
 
     //@SecondaryTable - vai gerar uma nova tabela
 
+    @Column(length = 100, nullable = false)
     private String nome;
 
+    @Column(length = 14, nullable = false)
+    private String cpf;
 
     @ElementCollection
     @CollectionTable(name = "cliente_contato",
-            joinColumns = @JoinColumn(name = "cliente_id"))
+            joinColumns = @JoinColumn(name = "cliente_id", nullable = false,
+                    foreignKey = @ForeignKey(name = "fk_cliente_contato_cliente")))
     @MapKeyColumn(name = "tipo")
     @Column(name = "descricao")
     private Map<String, String> contatos;
@@ -32,7 +40,7 @@ public class Cliente extends EntidadeBaseInteger {
     @Transient
     private String primeiroNome;
 
-    @Column(table = "cliente_detalhe")
+    @Column(table = "cliente_detalhe", length = 30, nullable = false)
     @Enumerated(EnumType.STRING)
     private SexoCliente sexo;
 

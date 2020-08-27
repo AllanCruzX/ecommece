@@ -19,8 +19,9 @@ public class ItemPedido {
     private ItemPedidoId id;
 
     @MapsId("pedidoId")
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "pedido_id")
+    @ManyToOne(optional = false )
+    @JoinColumn(name = "pedido_id" , nullable = false ,
+                foreignKey = @ForeignKey(name = "fk_item_pedido_pedido"))
     private Pedido pedido;
 
     @MapsId("produtoId")
@@ -28,9 +29,10 @@ public class ItemPedido {
     @JoinColumn(name = "produto_id")
     private Produto produto;
 
-    @Column(name = "preco_produto")
-    private BigDecimal precoProduto;
+    @Column(name = "preco_produto", nullable = false)
+    private BigDecimal precoProduto; //(usado para decimal) decimal(precisão 19 , escala 2) not null
 
+    @Column(nullable = false)
     private Integer quantidade;
 
 }
