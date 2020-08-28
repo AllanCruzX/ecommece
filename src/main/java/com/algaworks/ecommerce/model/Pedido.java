@@ -20,8 +20,6 @@ import java.util.List;
 @Table(name = "pedido")
 public class Pedido extends EntidadeBaseInteger {
 
-
-
     @Column(name = "data_criacao", updatable = false, nullable = false)
     private LocalDateTime dataCriacao;
 
@@ -50,7 +48,8 @@ public class Pedido extends EntidadeBaseInteger {
             foreignKey = @ForeignKey(name = "fk_pedido_cliente"))
     private Cliente cliente;
 
-    @OneToMany(mappedBy = "pedido" , cascade = CascadeType.PERSIST )
+    //orphanRemoval = true - Se remover o pai os filhos são removidos / só funciona com cascade = CascadeType.PERSIST
+    @OneToMany(mappedBy = "pedido" , cascade = CascadeType.PERSIST  , orphanRemoval = true)
     private List<ItemPedido> itens;
 
     @OneToOne(mappedBy = "pedido")
@@ -60,11 +59,11 @@ public class Pedido extends EntidadeBaseInteger {
         return StatusPedido.PAGO.equals(status);
     }
 
-    //    @PrePersist
-//    @PreUpdate
+    //   @PrePersist
+    //   @PreUpdate
     public void calcularTotal() {
         if (itens != null) {
-            total = itens.stream().map(ItemPedido::getPrecoProduto)
+            total = itens.stream().map(i -> new BigDecimal(i.getQuantidade()).multiply(i.getPrecoProduto()))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
     }
