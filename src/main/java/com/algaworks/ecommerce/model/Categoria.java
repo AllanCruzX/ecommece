@@ -1,10 +1,10 @@
 package com.algaworks.ecommerce.model;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Getter
@@ -22,6 +22,7 @@ public class Categoria extends EntidadeBaseInteger {
   //  @GeneratedValue(strategy = GenerationType.IDENTITY)
  //   private Integer id;
 
+    @NotBlank
     @Column(length = 100, nullable = false)
     private String nome;
 
@@ -34,5 +35,5 @@ public class Categoria extends EntidadeBaseInteger {
     private List<Categoria> categorias;
 
     @ManyToMany(mappedBy = "categorias")
-    private  List<Produto> produtos;
+    private List<Produto> produtos;
 }

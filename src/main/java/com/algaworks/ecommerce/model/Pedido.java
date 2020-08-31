@@ -1,70 +1,85 @@
-
 package com.algaworks.ecommerce.model;
 
 import com.algaworks.ecommerce.listener.GenericoListener;
 import com.algaworks.ecommerce.listener.GerarNotaFiscalListener;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @Setter
-
-@EntityListeners({GerarNotaFiscalListener.class , GenericoListener.class})
+@EntityListeners({ GerarNotaFiscalListener.class, GenericoListener.class })
 @Entity
 @Table(name = "pedido")
 public class Pedido extends EntidadeBaseInteger {
 
+    // optional = false - torna obrigatorio setar cliente (O JPA pode usar o inner join ao invez de left outer join)(left join e menos performatico que o inner join )
+
+    //orphanRemoval = true - Se remover o pai os filhos são removidos / só funciona com cascade = CascadeType.PERSIST
+
+    @NotNull
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "cliente_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_pedido_cliente"))
+    private Cliente cliente;
+
+    @NotEmpty
+    @OneToMany(mappedBy = "pedido")
+    private List<ItemPedido> itens;
+
+    @PastOrPresent
+    @NotNull
     @Column(name = "data_criacao", updatable = false, nullable = false)
     private LocalDateTime dataCriacao;
 
-    @Column(name = "data_ultima_atualizacao" , insertable = false)
+    @PastOrPresent
+    @Column(name = "data_ultima_atualizacao", insertable = false)
     private LocalDateTime dataUltimaAtualizacao;
 
-    @Column(name = "data_conclusao" )
+    @PastOrPresent
+    @Column(name = "data_conclusao")
     private LocalDateTime dataConclusao;
 
     @OneToOne(mappedBy = "pedido")
     private NotaFiscal notaFiscal;
 
-    @Column(precision = 19, scale = 2 , nullable = false)
+    @NotNull
+    @Positive
+    @Column(nullable = false)
     private BigDecimal total;
 
+    @NotNull
     @Column(length = 30, nullable = false)
     @Enumerated(EnumType.STRING)
     private StatusPedido status;
 
+    @OneToOne(mappedBy = "pedido")
+    private Pagamento pagamento;
+
     @Embedded
     private EnderecoEntregaPedido enderecoEntrega;
-
-    // optional = false - torna obrigatorio setar cliente (O JPA pode usar o inner join ao invez de left outer join)(left join e menos performatico que o inner join )
-    @ManyToOne(optional = false , cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "cliente_id" , nullable = false ,
-            foreignKey = @ForeignKey(name = "fk_pedido_cliente"))
-    private Cliente cliente;
-
-    //orphanRemoval = true - Se remover o pai os filhos são removidos / só funciona com cascade = CascadeType.PERSIST
-    @OneToMany(mappedBy = "pedido" , cascade = CascadeType.PERSIST  , orphanRemoval = true)
-    private List<ItemPedido> itens;
-
-    @OneToOne(mappedBy = "pedido")
-    private PagamentoCartao pagamento;
 
     public boolean isPago() {
         return StatusPedido.PAGO.equals(status);
     }
 
-    //   @PrePersist
-    //   @PreUpdate
+    //    @PrePersist
+//    @PreUpdate
     public void calcularTotal() {
         if (itens != null) {
-            total = itens.stream().map(i -> new BigDecimal(i.getQuantidade()).multiply(i.getPrecoProduto()))
+            total = itens.stream().map(
+                    i -> new BigDecimal(i.getQuantidade()).multiply(i.getPrecoProduto()))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
+        } else {
+            total = BigDecimal.ZERO;
         }
     }
 

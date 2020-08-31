@@ -5,34 +5,40 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
-@Setter
 @Getter
-@EntityListeners({GenericoListener.class})
+@Setter
+@EntityListeners({ GenericoListener.class })
 @Entity
 @Table(name = "produto",
         uniqueConstraints = { @UniqueConstraint(name = "unq_nome", columnNames = { "nome" }) },
         indexes = { @Index(name = "idx_nome", columnList = "nome") })
 public class Produto extends EntidadeBaseInteger {
 
-    //updatable = false - para que o atributo não seja atualizado
-    @Column(name = "data_criacao" , updatable = false , nullable = false)
+    @PastOrPresent
+    @NotNull
+    @Column(name = "data_criacao", updatable = false, nullable = false)
     private LocalDateTime dataCriacao;
 
-    //insertable = false - para que o atributo não tenha valor na inclusão
-    @Column(name = "data_ultima_atualizacao" , insertable = false)
+    @PastOrPresent
+    @Column(name = "data_ultima_atualizacao", insertable = false)
     private LocalDateTime dataUltimaAtualizacao;
 
-    @Column(length = 100 , nullable = false) // name varchar(100) not null
+    @NotBlank
+    @Column(length = 100, nullable = false)
     private String nome;
 
     @Lob
     private String descricao;
 
+    @Positive
     private BigDecimal preco;
 
     @Lob
@@ -46,7 +52,7 @@ public class Produto extends EntidadeBaseInteger {
                     foreignKey = @ForeignKey(name = "fk_produto_categoria_categoria")))
     private List<Categoria> categorias;
 
-    @OneToOne(mappedBy = "produto" )
+    @OneToOne(mappedBy = "produto")
     private Estoque estoque;
 
     @ElementCollection
